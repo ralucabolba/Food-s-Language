@@ -1,6 +1,6 @@
 package com.artsoft.controller;
 
-import java.util.Collection;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -55,8 +55,8 @@ public class UserController {
 	}
 
 	@RequestMapping(value = "/users", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<Collection<User>> getUsers() {
-		return new ResponseEntity<Collection<User>>(userService.findAll(), HttpStatus.OK);
+	public ResponseEntity<List<User>> getUsers() {
+		return new ResponseEntity<List<User>>(userService.findAll(), HttpStatus.OK);
 	}
 
 	@RequestMapping(value = "/user/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)

@@ -33,6 +33,42 @@ function showError(error) {
 	alert(error);
 }
 
+function fetchUsers() {
+	var i = 0;
+	var content = "";
+
+	$.ajax({
+		url : "users",
+		type : "GET",
+
+		beforeSend : function(xhr) {
+			xhr.setRequestHeader("Accept", "application/json");
+			xhr.setRequestHeader("Content-Type", "application/json");
+		},
+
+		success : function(users) {
+			for (user in users) {
+				if (i % 4 === 0) {
+					content += '<div class="row">';
+				}
+
+				content += '<div class="col-sm-4">'
+						+ '<div class="card card-block">'
+						+ '<h3 class="card-title">' + user.name + '</h3>'
+						+ '<p class="card-text">' + user.username + "<br>"
+						+ user.email + '</p>'
+						+ '<a href="#" class="btn btn-info">More details</a>'
+						+ '</div> </div>';
+
+				if ((i + 1) % 4 === 0) {
+					content += '</div>';
+				}
+			}
+			
+			$("#admin-container").append(content);
+		}
+	});
+}
 $(document).ready(function() {
 	/* Csrf parameter needed for spring security */
 	var header = $("meta[name='_csrf_header']").attr("content");
@@ -116,8 +152,8 @@ $(document).ready(function() {
 		$.ajax({
 			url : "user/" + id,
 			type : "PUT",
-			data : JSON.stringify(user),
 			dataType : "json",
+			data : JSON.stringify(user),
 
 			beforeSend : function(xhr) {
 				xhr.setRequestHeader("Accept", "application/json");
@@ -133,7 +169,7 @@ $(document).ready(function() {
 					location.reload();
 				}
 			},
-			
+
 			complete : function(xhr) {
 				if (xhr.status === 422) {
 					alert("The username already exists.");

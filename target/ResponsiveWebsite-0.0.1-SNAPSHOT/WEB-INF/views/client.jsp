@@ -63,7 +63,7 @@
 						<div class="col-xs-8">
 							<input class="form-control" type="text" pattern=".{6,32}"
 								title="The username must contain between 6 and 32 characters "
-								placeholder="Username" id="username-update" required>
+								placeholder="Username" id="username-update" required readonly>
 						</div>
 					</div>
 
@@ -86,9 +86,5 @@
 	<script
 		src="https://www.atlasestateagents.co.uk/javascript/tether.min.js"></script>
 
-	<script src="dist/js/bootstrap.min.js" type="text/javascript"></script>
-
-	<script src="<c:url value ="/javascript/main.js"/>"
-		type="text/javascript"></script>
 </body>
 </html>

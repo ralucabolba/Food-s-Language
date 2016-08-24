@@ -49,7 +49,6 @@
 	<!-- Bootstrap Javascript -->
 	<script
 		src="https://www.atlasestateagents.co.uk/javascript/tether.min.js"></script>
-	<script src="<c:url value="/javascript/main.js"/>"
-		type="text/javascript"></script>
+	
 </body>
 </html>

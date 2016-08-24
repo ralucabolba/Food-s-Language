@@ -33,6 +33,43 @@ function showError(error) {
 	alert(error);
 }
 
+function fetchUsers() {
+	var i = 0;
+	var content = "";
+
+	$.ajax({
+		url : "users",
+		type : "GET",
+
+		beforeSend : function(xhr) {
+			xhr.setRequestHeader("Accept", "application/json");
+			xhr.setRequestHeader("Content-Type", "application/json");
+		},
+
+		success : function(users) {
+			$.each(users, function(i, user){
+				if (i % 4 === 0) {
+					content += '<div class="row">';
+				}
+
+				content += '<div class="col-sm-3">'
+						+ '<div class="card card-block">'
+						+ '<h3 class="card-title">' + user.name + '</h3>'
+						+ '<label username="' + user.username +'"></label>'
+						+ '<p class="card-text username-card">' + user.username + "<br>"
+						+ user.email + '</p>'
+						+ '<a href="javascript:void(0)" class="btn btn-info details">More details</a>'
+						+ '</div> </div>';
+
+				if ((i + 1) % 4 === 0) {
+					content += '</div>';
+				}
+			});
+			
+			$("#admin-container").append(content);
+		}
+	});
+}
 $(document).ready(function() {
 	/* Csrf parameter needed for spring security */
 	var header = $("meta[name='_csrf_header']").attr("content");
@@ -42,6 +79,11 @@ $(document).ready(function() {
 		$("#logout-form").submit();
 	});
 
+	$("div").on("click", "a.details", function(){
+		var username = $(this).parent("div").children("label").attr("username");
+		alert(username);
+	});
+	
 	/* Submit signup form */
 	$("#signup-form").submit(function(e) {
 		e.preventDefault();
@@ -88,7 +130,7 @@ $(document).ready(function() {
 					alert("The username already exists.");
 				} else if (xhr.status === 201) {
 					alert("Account created");
-					window.location = "login";
+					//window.location = "login";
 				}
 			}
 
@@ -133,7 +175,7 @@ $(document).ready(function() {
 					location.reload();
 				}
 			},
-			
+
 			complete : function(xhr) {
 				if (xhr.status === 422) {
 					alert("The username already exists.");

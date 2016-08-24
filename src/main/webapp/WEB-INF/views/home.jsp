@@ -68,5 +68,7 @@
 	<!-- Bootstrap Javascript -->
 	<script src="<c:url value="/dist/js/bootstrap.min.js"/>" type="text/javascript"></script>
 
+	<script src="<c:url value="/javascript/main.js"/>"
+		type="text/javascript"></script>
 </body>
 </html>
