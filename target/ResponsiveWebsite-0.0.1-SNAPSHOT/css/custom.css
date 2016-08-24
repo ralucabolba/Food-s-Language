@@ -1,0 +1,79 @@
+html, body {
+	height: 100%;
+}
+
+img {
+	max-width: 100%
+}
+
+/*Logo*/
+#logo {
+	font-family: 'Cookie', cursive;
+	font-size: 30px;
+}
+
+h1, h2 {
+	font-family: 'Open Sans', sans-serif
+}
+
+p, .nav-item, label, button, input {
+	font-family: 'Raleway', sans-serif;
+}
+
+#menu {
+	position: relative;
+	margin: 0px auto;
+	width: 50%;
+}
+
+.nav-item {
+	padding-left: 20px;
+}
+/*Cover*/
+
+
+#cover {
+	background: #222 url('img/strawberry.jpg') center no-repeat;
+	color: white;
+}
+
+#signup-cover {
+	background: #222 url('img/bread.jpg') center no-repeat;
+	color: #222;
+}
+
+#update-cover {
+	background: #222 url('img/green.jpg') center no-repeat;
+	color: #222;
+}
+
+#cover, #signup-cover, #update-cover {
+	background-size: cover;
+	height: 100%;
+	text-align: center;
+	display: flex;
+	align-items: center;
+}
+
+/*Forms*/
+#signup-form, #update-form {
+	text-align: left;
+	padding: 20px;
+}
+
+/*Containers*/
+#signup-container, #update-container {
+	background-color: rgba(255, 255, 255, 0.8);
+	border-radius: 10px;
+	padding: 30px;
+	width: 40%;
+}
+
+#cover-caption {
+	width: 100%;
+}
+
+/*Card section*/
+#what-we-do {
+	padding: 20px;
+}
