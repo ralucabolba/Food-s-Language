@@ -2,6 +2,9 @@ package com.artsoft.service;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 import com.artsoft.bean.User;
 
 public interface UserService {
@@ -16,4 +19,8 @@ public interface UserService {
 	public User update(User user);
 	
 	public void delete(User user);
+	
+	public Page<User> findAllByPage(Pageable pageable);
+	
+	public void evictCache();
 }

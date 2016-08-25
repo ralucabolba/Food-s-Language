@@ -1,8 +1,8 @@
 package com.artsoft.controller;
 
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -53,10 +53,11 @@ public class UserController {
 
 		return model;
 	}
-
-	@RequestMapping(value = "/users", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<List<User>> getUsers() {
-		return new ResponseEntity<List<User>>(userService.findAll(), HttpStatus.OK);
+	
+	@RequestMapping(value="/users", method=RequestMethod.GET)
+	public Page<User> getUsers(Pageable pageable){
+		Page<User> users = userService.findAllByPage(pageable);
+		return users;
 	}
 
 	@RequestMapping(value = "/user/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -71,11 +72,11 @@ public class UserController {
 		if (userService.findByUsername(user.getUsername()) != null) {
 			return new ResponseEntity<User>(HttpStatus.UNPROCESSABLE_ENTITY);
 		} else {
-			Role role = roleService.findByRole("ROLE_USER");
+			Role role = roleService.findByRole(user.getRole().getRole());
 
 			if (role == null) {
 				role = new Role();
-				role.setRole("ROLE_USER");
+				role.setRole(user.getRole().getRole());
 				role = roleService.save(role);
 			}
 			user.setRole(role);
@@ -102,5 +103,11 @@ public class UserController {
 		User updatedUser = userService.update(originalUser);
 
 		return new ResponseEntity<User>(updatedUser, HttpStatus.OK);
+	}
+	
+	@RequestMapping(value="/user/{id}", method = RequestMethod.DELETE, consumes = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<User> deleteUser(@PathVariable("id") long id){
+		userService.delete(userService.findById(id));
+		return new ResponseEntity<User>(HttpStatus.NO_CONTENT);
 	}
 }

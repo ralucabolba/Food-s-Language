@@ -85,6 +85,13 @@
 	<!-- Bootstrap Javascript -->
 	<script
 		src="https://www.atlasestateagents.co.uk/javascript/tether.min.js"></script>
+		
+	<!-- Bootstrap Javascript -->
+	<script src="<c:url value="/dist/js/bootstrap.min.js"/>" type="text/javascript"></script>
+	
+	
+	<script src="<c:url value="/javascript/main.js"/>"
+		type="text/javascript"></script>
 
 </body>
 </html>

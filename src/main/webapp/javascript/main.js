@@ -9,9 +9,17 @@ function loadinfo() {
 		},
 
 		success : function(user) {
+			var birthDate = new Date(user.birthDate);
+
+			var day = ("0" + birthDate.getDate()).slice(-2);
+			var month = ("0" + (birthDate.getMonth() + 1)).slice(-2);
+
+			var date = birthDate.getFullYear()+"-"+(month)+"-"+(day) ;
+
+			
 			$("#id-update").val(user.id);
 			$("#name-update").val(user.name);
-			$("#birth-date-update").val(user.birthDate);
+			$("#birth-date-update").val(date);
 			$("#email-update").val(user.email);
 			$("#username-update").val(user.username);
 
@@ -25,7 +33,6 @@ function loadinfo() {
 }
 
 function writeName() {
-	console.log(localStorage.getItem("name-user"));
 	$("#user-name").append(localStorage.getItem("name-user"));
 }
 
@@ -33,12 +40,15 @@ function showError(error) {
 	alert(error);
 }
 
-function fetchUsers() {
-	var i = 0;
+function getPages(){
 	var content = "";
 
+	fetchUsers(0);
+	localStorage.setItem("name-user", "Administrator");
+	writeName();
+	
 	$.ajax({
-		url : "users",
+		url : "users?size=12",
 		type : "GET",
 
 		beforeSend : function(xhr) {
@@ -47,18 +57,52 @@ function fetchUsers() {
 		},
 
 		success : function(users) {
-			$.each(users, function(i, user){
+			var noPages = users.totalPages;
+			
+			if(noPages > 0){
+				content += '<nav aria-label="..."> <ul id="users-pag" class="pagination">';
+				for(var index = 0; index < noPages; index++){
+					content += '<li class="page-item users-page-item"><a class="page-link" href="javascript:void(0)">'+ (index + 1) +'</a></li>';
+				}
+				
+				content += '</ul></nav>';
+			}
+			
+			$("#admin-container").append(content);
+		}
+	});
+}
+
+function fetchUsers(pageNo) {
+	var i = 0;
+	var content = "";
+
+	$("#users-container").empty();
+	
+	$.ajax({
+		url : "users?page=" + pageNo + "&size=12",
+		type : "GET",
+
+		beforeSend : function(xhr) {
+			xhr.setRequestHeader("Accept", "application/json");
+			xhr.setRequestHeader("Content-Type", "application/json");
+		},
+
+		success : function(users) {
+			$.each(users.content, function(i, user){
 				if (i % 4 === 0) {
 					content += '<div class="row">';
 				}
 
 				content += '<div class="col-sm-3">'
 						+ '<div class="card card-block">'
-						+ '<h3 class="card-title">' + user.name + '</h3>'
-						+ '<label username="' + user.username +'"></label>'
+						+ '<h5 class="card-title">' + user.name + '</h5>'
+						+ '<label id="' + user.id +'"></label>'
 						+ '<p class="card-text username-card">' + user.username + "<br>"
 						+ user.email + '</p>'
-						+ '<a href="javascript:void(0)" class="btn btn-info details">More details</a>'
+						+ '<a href="#" class="details"><i class="ion-ios-help-outline"></i></a>' 
+					/*	+ '<a href="#" class="edit"><i class="ion-ios-gear-outline"></i></a>' */
+						+ '<a href="#" class="delete"><i class="ion-ios-close-outline"></i></a>'
 						+ '</div> </div>';
 
 				if ((i + 1) % 4 === 0) {
@@ -66,7 +110,7 @@ function fetchUsers() {
 				}
 			});
 			
-			$("#admin-container").append(content);
+			$("#users-container").append(content);
 		}
 	});
 }
@@ -75,13 +119,146 @@ $(document).ready(function() {
 	var header = $("meta[name='_csrf_header']").attr("content");
 	var token = $("meta[name='_csrf']").attr("content");
 
+	/*Submit form responsible for logout operation*/
 	$("#logout").click(function() {
 		$("#logout-form").submit();
 	});
 
-	$("div").on("click", "a.details", function(){
-		var username = $(this).parent("div").children("label").attr("username");
-		alert(username);
+	/*Show the user info when admin presses on info button from a card*/
+	$("div#users-container").on("click", "a.details", function(){
+		var id = $(this).parent("div").children("label").attr("id");
+		
+		$.ajax({
+			url: "user/" + id,
+			type: "GET",
+			
+			beforeSend : function(xhr) {
+				xhr.setRequestHeader("Accept", "application/json");
+				xhr.setRequestHeader("Content-Type", "application/json");
+			},
+
+			success : function(user) {
+				var birthDate = new Date(user.birthDate);
+
+				var day = ("0" + birthDate.getDate()).slice(-2);
+				var month = ("0" + (birthDate.getMonth() + 1)).slice(-2);
+
+				var date = birthDate.getFullYear()+"-"+(month)+"-"+(day);
+				
+				$(".name-cell").html(user.name);
+				$(".birth-date-cell").html(date);
+				$(".email-cell").html(user.email);
+				$(".username-cell").html(user.username);
+				$(".role-cell").html(user.role.role);
+				
+				$("#info-modal").modal('show');
+			}
+		});
+	});
+
+	/*Show the confirmation modal when admin presses the delete button from a card*/
+	$("div#users-container").on("click", "a.delete", function(){
+		var id = $(this).parent("div").children("label").attr("id");
+		
+		localStorage.setItem("user-id", id);
+		
+		$("#delete-user-modal").modal("show");
+	});
+	
+	/*Delete the user when the delete button from modal is pressed*/
+	$("#delete-user-button").click(function(){
+		var id = localStorage.getItem("user-id");
+		localStorage.clear();
+		
+		$.ajax({
+			url: "user/" + id,
+			type:"DELETE",
+			
+			beforeSend : function(xhr) {
+				xhr.setRequestHeader("Accept", "application/json");
+				xhr.setRequestHeader("Content-Type", "application/json");
+				xhr.setRequestHeader(header, token);
+			},
+
+			complete : function(xhr) {
+				if(xhr.status === 204){
+					alert("User deleted successfully");
+					location.reload();
+				}
+				else{
+					alert("Something went wrong..");
+				}
+			}
+		});
+	});
+	
+	/*Pagination processing*/
+	$("div").on("click", "li.users-page-item", function(){
+		var pageNo = $(this).children("a").text();
+		fetchUsers(pageNo-1);
+	});
+
+	/*Show add user modal when '+' button is pressed*/
+	$("#add-user").click(function(){
+		$("#add-user-modal").modal("show");
+	});
+	
+	/*Submit add form*/
+	$("#add-user-form").submit(function(e){
+		e.preventDefault();
+		
+		var role = $("#role-user-add option:selected").text();
+		var name = $("#name-user-add").val();
+		var birthDate = $("#birth-date-user-add").val();
+		var email = $("#email-user-add").val();
+		var username = $("#username-user-add").val();
+		var password = $("#password-user-add").val();
+		var confirmationPassword = $("#confirmation-password-user-add").val();
+		
+		var role = {
+			'role' : role
+		};
+		
+		var user = {
+			'name' : name,
+			'birthDate' : birthDate,
+			'email' : email,
+			'username' : username,
+			'password' : password,
+			'confirmationPassword' : confirmationPassword,
+			'role': role
+		};
+	
+		$.ajax({
+			url: "user",
+			type: "POST",
+			dataType: "json",
+			data: JSON.stringify(user),
+			
+			beforeSend : function(xhr) {
+				xhr.setRequestHeader("Accept", "application/json");
+				xhr.setRequestHeader("Content-Type", "application/json");
+				xhr.setRequestHeader(header, token);
+			},
+
+			success : function(xhr) {
+				if (xhr.status === 422) {
+					alert("The username already exists.");
+				} else if (xhr.status === 201) {
+					alert("Account created");
+					location.reload();
+				}
+			},
+
+			complete : function(xhr) {
+				if (xhr.status === 422) {
+					alert("The username already exists.");
+				} else if (xhr.status === 201) {
+					alert("Account created");
+					location.reload();
+				}
+			}
+		});
 	});
 	
 	/* Submit signup form */
@@ -130,7 +307,7 @@ $(document).ready(function() {
 					alert("The username already exists.");
 				} else if (xhr.status === 201) {
 					alert("Account created");
-					//window.location = "login";
+					// window.location = "login";
 				}
 			}
 

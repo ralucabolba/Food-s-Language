@@ -42,13 +42,5 @@
 			value="${_csrf.token}" />
 	</form>
 
-	<!-- jQuery -->
-	<script
-		src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
-
-	<!-- Bootstrap Javascript -->
-	<script
-		src="https://www.atlasestateagents.co.uk/javascript/tether.min.js"></script>
-	
 </body>
 </html>
